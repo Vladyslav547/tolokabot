@@ -1,3 +1,4 @@
+import os
 import logging
 import requests
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
@@ -13,7 +14,8 @@ PARTNER_COMPANY, PARTNER_FIELD, PARTNER_CITY, PARTNER_CONTACT = range(7, 11)
 # Дані
 ADMIN_CHAT_ID = 695255312
 CHANNEL_USERNAME = "bud_toloka"
-TOKEN = "7340119945:AAH9akyrID54rWwBrCT6NZL9hk0WSHXZuao"
+TOKEN = os.environ.get("BOT_TOKEN")
+
 
 logging.basicConfig(level=logging.INFO)
 
