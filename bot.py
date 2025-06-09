@@ -131,34 +131,43 @@ def partner_contact(update: Update, context: CallbackContext) -> int:
     return ConversationHandler.END
 
 # Надсилання інфи адміну
+import html
+
 def send_data(update: Update, context: CallbackContext):
     data = context.user_data
     user = update.effective_user
     username = user.username
-    user_link = f"[{user.full_name}](https://t.me/{username})" if username else f"{user.full_name} (юзернейм відсутній)"
+    user_fullname = user.full_name
+
+    # Екранування для HTML, щоб уникнути помилок парсингу
+    def esc(text):
+        return html.escape(text, quote=False) if text else ""
+
+    user_link = f'<a href="https://t.me/{esc(username)}">{esc(user_fullname)}</a>' if username else esc(user_fullname) + " (юзернейм відсутній)"
     user_id = user.id
 
-    text = f"📬 *Нова анкета: {data['role']}*\n"
-    text += f"👤 *Профіль:* {user_link}\n"
-    text += f"🆔 *User ID:* `{user_id}`\n"
-    text += f"🔗 *Username:* @{username if username else 'відсутній'}\n\n"
+    text = f"📬 <b>Нова анкета: {esc(data['role'])}</b>\n"
+    text += f"👤 <b>Профіль:</b> {user_link}\n"
+    text += f"🆔 <b>User ID:</b> <code>{user_id}</code>\n"
+    text += f"🔗 <b>Username:</b> @{esc(username) if username else 'відсутній'}\n\n"
 
     if data["role"] == "Гість":
         text += (
-            f"👤 Ім'я: {data['name']}\n"
-            f"🎂 Вік: {data['age']}\n"
-            f"🏙 Місто: {data['city']}\n"
-            f"💼 Сфера: {data['field']}\n"
-            f"📞 Контакт: {data['contact']}"
+            f"👤 Ім'я: {esc(data.get('name'))}\n"
+            f"🎂 Вік: {esc(data.get('age'))}\n"
+            f"🏙 Місто: {esc(data.get('city'))}\n"
+            f"💼 Сфера: {esc(data.get('field'))}\n"
+            f"📞 Контакт: {esc(data.get('contact'))}"
         )
     else:
         text += (
-            f"🏢 Компанія: {data['company']}\n"
-            f"💼 Сфера: {data['field']}\n"
-            f"🏙 Місто: {data['city']}\n"
-            f"📞 Контакт: {data['contact']}"
+            f"🏢 Компанія: {esc(data.get('company'))}\n"
+            f"💼 Сфера: {esc(data.get('field'))}\n"
+            f"🏙 Місто: {esc(data.get('city'))}\n"
+            f"📞 Контакт: {esc(data.get('contact'))}"
         )
-    context.bot.send_message(chat_id=ADMIN_CHAT_ID, text=text, parse_mode='Markdown')
+    context.bot.send_message(chat_id=ADMIN_CHAT_ID, text=text, parse_mode='HTML')
+
 
 def cancel(update: Update, context: CallbackContext) -> int:
     update.message.reply_text("Анкету скасовано.")
